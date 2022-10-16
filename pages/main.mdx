@@ -1,0 +1,677 @@
+import {
+	Plot,
+	Plot3D,
+	Polar,
+	Tree,
+	AVLTree,
+	Graph,
+	Arr,
+	CircularQueue,
+	Lattice,
+	List,
+} from "../hago/index";
+import { Grid } from "../components/Grid";
+
+Hago is a React library for plotting functions and data structures [available via npmjs](https://www.npmjs.com/package/hago). The library grew out of a need to quickly generate diagrams during lectures and seminars.
+
+<div className="outline">
+
+1. [Development](#development)
+2. [Function Plot](#function-plot)
+	1. [Integrals](#integrals)
+	2. [Domain and Range](#domain-and-range)
+	3. [Riemann Sums](#riemann-sums)
+	4. [Points](#points)
+	5. [Secant Lines](#secant-lines)
+	6. [Parametric Plots](#parametric-plots)
+3. [Polar Plots](#polar-plots)
+4. [Multivariable Plots](#multivariable-plots)
+5. [Arrays](#arrays)
+6. [Lists](#lists)
+7. [Circular Queues](#circular-queues)
+8. [Lattice](#lattice)
+9. [Trees](#trees)
+	1. [AVL Trees](#avl-trees)
+10. [Graphs](#graphs)
+
+</div>
+
+Hago is built with [TypeScript](https://www.typescriptlang.org/), [KaTeX](https://katex.org/), [D3](https://d3js.org/), [Matej Branksy's react-katex](https://github.com/MatejBransky/react-katex), and [ThreeJS](https://threejs.org/). Do support these projects — they provide convenient ways of communicating mathematics on the web.
+
+## Development
+
+The modules displayed here have been tested and polished. Experimental modules can be viewed via [Hago's Storybook](https://ketiboldiais.github.io/hago/), and all source code is [publicly available on Github.](https://github.com/ketiboldiais/hago).
+
+## Function Plot
+
+Below are a few function plots, rendered by the `Plot` module.
+
+<Grid cols={2}>
+<Plot data={[{ f: (x) => 1/x }]}/>
+<Plot data={[{ f: (x) => Math.tan(x) }]}/>
+```jsx
+<Plot data={[{ f: (x) => 1/x }]}/>
+```
+```jsx
+<Plot data={[{ f: (x) => Math.tan(x) }]}/>
+```
+</Grid>
+
+Styling is left to CSS, using the following classes: 
+
+| CSS                | Target                                          |
+| ------------------ | ----------------------------------------------- |
+| `.hago_XAxis`      | ${x}$-axis.                                     |
+| `.hago_XAxis text` | Numbers along ${x}$-axis.                       |
+| `.hago_YAxis`      | ${y}$-axis.                                     |
+| `.hago_YAxis text` | Numbers along ${y}$-axis.                       |
+| `.hago_PlotPath`   | Plot path (in the examples above, colored red). |
+| `.hago .Plot2`     | `figure` container for the plot.                |
+
+### Integrals
+
+Data for integrals can be passed into the `Plot` module: 
+
+<Grid cols={2}>
+
+```jsx
+<Plot
+  data={[{
+		f: (x) => x ** 3,
+		integrate: [-3, 5, 'x']
+	}]}
+  domain={[-10, 10]}
+  range={[-10, 10]}
+/>
+```
+<Plot
+	data={[{ f: (x) => x ** 3, integrate: [-3, 5, 'x'] }]}
+	domain={[-10, 10]}
+	range={[-10, 10]}
+/>
+</Grid>
+
+<Grid cols={2}>
+```jsx
+<Plot
+	data={[{
+		f: (x) => Math.sqrt(x),
+		integrate: [1, 5, 'x']
+	}]}
+	domain={[0, 10]}
+	range={[0, 10]}
+/>
+```
+
+<Plot
+	data={[{ f: (x) => Math.sqrt(x), integrate: [1, 5, 'x'] }]}
+	domain={[0, 10]}
+	range={[0, 10]}
+/>
+</Grid>
+
+<Grid cols={2}>
+
+```jsx
+<Plot
+	data={[{
+		f: (x) => Math.cos(x),
+		integrate: [-5, 5, 'x']
+	}]}
+	domain={[-5, 5]}
+	range={[-5, 5]}
+/>
+```
+<Plot
+	data={[{ f: (x) => Math.cos(x), integrate: [-5, 5, 'x'] }]}
+	domain={[-5, 5]}
+	range={[-5, 5]}
+/>
+
+</Grid>
+
+### Domain and Range
+
+The domain and range can be adjusted for transformations:
+
+<Grid cols={2}>
+```jsx
+<Plot
+	data={[
+		{ f: (x) => -2*x*Math.E**(-1*x**2) },
+		{ f: (x) => Math.sqrt(Math.PI)/2, dash: 3 },
+		{ f: (x) => -Math.sqrt(Math.PI)/2, dash: 3 },
+	]}
+	domain={[-3.5, 3.5]}
+	range={[-3.5, 3.5]}
+/>
+```
+<Plot
+	data={[
+		{ f: (x) => -2 * x * Math.E**(-1 * x**2) },
+		{ f: (x) => Math.sqrt(Math.PI) / 2, dash: 3 },
+		{ f: (x) => -Math.sqrt(Math.PI) / 2, dash: 3 },
+	]}
+	domain={[-2, 2]}
+	range={[-2, 2]}
+/>
+</Grid>
+
+### Riemann Sums
+
+Riemann sums can be rendered by initializing the `riemann` field.
+
+<Grid cols={2}>
+```javascript
+<Plot
+  data={[{
+		f: (x) => Math.cos(x),
+		riemann: { m:'left', dx:0.4, i:[-5, 5], f:'x' }
+  }]}
+  domain={[-5, 5]}
+  range={[-5, 5]}
+/>
+```
+<Plot
+  data={[{
+		f: (x) => Math.cos(x),
+		riemann: { m:'left', dx:0.4, i:[-5, 5], f:'x' }
+  }]}
+  domain={[-5, 5]}
+  range={[-5, 5]}
+/>
+</Grid>
+
+The `m` field determines which method to use in rendering the Riemann sum.
+By default, this is set to `left` (corresponding to the left Riemann sum). The other available option is `right` (corresponding to the right Riemann sum).
+
+<Grid cols={2}>
+```javascript
+<Plot
+  data={[{
+		f: (x) => Math.cos(x),
+		riemann: { m:'right', dx:0.4, i:[-5, 5], f:'x' }
+  }]}
+  domain={[-5, 5]}
+  range={[-5, 5]}
+/>
+```
+<Plot
+  data={[{
+		f: (x) => x**2,
+		riemann: { m:'right', dx:0.4, i:[-2, 2], f:'x' }
+  }]}
+  domain={[-5, 5]}
+  range={[-5, 5]}
+/>
+</Grid>
+
+The `dx` field determines the ${\Delta x,}$ or, in graphic terms,
+the width of the rectangles. The lower `dx` is, the closer the
+Riemann sum looks to classical integration. In the example below,
+the `dx` is set to `0.04`.
+
+<Grid cols={2}>
+```jsx
+<Plot
+  data={[{
+		f: (x) => x ** 2,
+		riemann: {
+			m:'right',
+			dx:0.04,
+			i:[-2, 2],
+			f:'x'
+	}}]}
+  domain={[-5, 5]}
+  range={[-5, 5]}
+/>
+```
+<Plot
+  data={[{
+		f: (x) => x**2,
+		riemann: {
+			m:'right',
+			dx:0.04,
+			i:[-2,2],
+			f:'x'
+	}}]}
+  domain={[-5, 5]}
+  range={[-5, 5]}
+/>
+</Grid>
+
+The `f` field instructs Hago which function to render the Riemann sum
+with respect to. In the examples above, the sums are rendered with respect
+to ${f: x \mapsto 0}$ (i.e., the ${x}$-axis). To render the Riemann sum against a different function, a definition may be passed: 
+
+<Grid cols={2}>
+```jsx
+<Plot
+  data={[{
+			f: (x) => 0.3*((x-3)**2)+1,
+      riemann: {
+        f: (x) => -(0.3*(x-3)**2-3),
+        m: 'left',
+        i: [2,4],
+        dx: 0.25,
+    }},
+    {f:(x) => -(0.3*((x-3)**2)-3)},
+    {f:2, dash: 3},
+    {f:4, dash: 3},
+  ]}
+  domain={[-1, 8]}
+  range={[-1, 8]}
+/>
+```
+<Plot
+  data={[
+    {f: (x) => 0.3*((x-3)**2)+1,
+      riemann: {
+        f: (x) => -(0.3*(x-3)**2-3),
+        m: 'left',
+        i: [2,4],
+        dx: 0.25,
+      },
+    },
+    {f: (x) => -(0.3*((x-3)**2)-3) },
+    {f: 2, dash: 3 },
+    {f: 4, dash: 3 },
+  ]}
+  domain={[-1, 8]}
+  range={[-1, 8]}
+/>
+</Grid>
+
+### Points
+
+Points can be rendered by passing `point` objects. The `p` field
+sets the coordinate; the `label` field sets the label; the `dx` field 
+sets the label's ${x}$-axis offset; and the `dy` field sets the
+${y}$-axis offset.
+
+<Grid cols={2}>
+```jsx
+<Plot data={[
+	{p:[2,2], label:'(2,2)', dx:5, dy:3},
+	{p:[-1,3], label:'(-1,3)', dx:-30, dy:3},
+	{p:[-5,-4], label:'(-5,-4)', dx:-30, dy:10},
+	{p:[8,-6], label:'(8,-6)', dx:-30, dy:10}
+]}/>
+```
+<Plot data={[
+	{ p: [2,2], label: '(2,2)', dx:5, dy:3 },
+	{ p: [-1,3], label: '(-1,3)', dx:-30, dy:3 },
+	{ p: [-5,-4], label: '(-5,-4)', dx:-30, dy:10 },
+	{ p: [8,-6], label: '(8,-6)', dx:-30, dy:10 },
+]}
+width={300}
+height={300}
+/>
+</Grid>
+
+### Secant Lines
+
+To render secant lines, initialize the `secant` field.
+
+<Grid cols={2}>
+```jsx
+<Plot
+ data={[{
+	f: (x) => (x**2)-(2*x)+3,
+	secant:{x0: 1, x1: 2}
+ }]}
+ domain={[-3,6]}
+ range={[-8,30]}
+/>
+```
+<Plot
+ data={[{
+	f: (x) => x ** 2 - 2 * x + 3,
+	secant: {x0: 1, x1: 5}
+ }]}
+ domain={[-3,6]}
+ range={[-8,30]}
+/>
+</Grid>
+
+By definition, two points are needed to generate a secant line. The `x0` field
+sets the ${x}$ argument for the first point, and the `x1` field sets the
+argument for the second point. The points themselves can be rendered along with
+their coordinates, as well as an equation for the secant line: 
+
+<Grid cols={1}>
+```jsx
+<Plot
+ data={[{
+	f: (x) => (x**2)*x+(0.3),
+	secant: {
+		 x0: 1, x1: 5,
+		 renderPoints: true,
+		 renderFormula: true
+ }}]}
+ domain={[-3,6]}
+ range={[-8,30]}
+/>
+```
+<Plot
+ data={[{
+	f: (x) => (x**2)*x+(0.3),
+	secant: {
+		 x0:1, x1:2,
+		 renderPoints: true,
+		 renderFormula: true
+ }}]}
+ domain={[-3,6]}
+ range={[-8,30]}
+ scale={70}
+/>
+</Grid>
+
+The `renderPoints` field takes a Boolean. If set to `true`, the two points
+passed are rendered. If set to `false`, neither point is rendered. The default
+value is `false`. The `renderFormula` operates similarly. If set to `true`,
+the secant line's _approximated_ equation is rendered. The default is `false` — no rendering.
+
+A disclaimer on the `renderFormula` field: Continuous functions, by nature, can only be approximated by computers. Accordingly, the slope rendered by `Plot` is an approximated slope. Specifically, `Plot` will only read up to eight decimal places before passing control to the next module. Using those eight decimal places, `Plot` will compute the lowest possible fraction using [continued fractions](https://en.wikipedia.org/wiki/Continued_fraction). Hago is not intended to be a substitute for careful mathematical reasoning.
+
+### Parametric Plots
+
+The `Plot` module can render parametric plots by initializing — in the function object — the `x` and `y` fields instead of the usual `f` field. 
+
+<Grid cols={1}>
+```jsx
+<Plot data={[{
+	x:(t)=>Math.sin(t)*(Math.E**Math.cos(t)-2*Math.cos(4*t)-Math.sin(t/12)**5),
+	y:(t)=>Math.cos(t)*(Math.E**Math.cos(t)-2*Math.cos(4*t)-Math.sin(t/12)**5)
+}]}/>
+```
+<Plot data={[{
+	x:(t)=>Math.sin(t)*(Math.E**Math.cos(t)-2*Math.cos(4*t)-Math.sin(t/12)**5),
+	y:(t)=>Math.cos(t)*(Math.E**Math.cos(t)-2*Math.cos(4*t)-Math.sin(t/12)**5)
+}]} scale={60}/>
+
+$$
+x(t)=\sin{t}\left(e^{\cos{t}}-2\cos 4t-\sin^5\left(\dfrac{t}{12}\right)\right)
+\\[1em]
+y(t)=\cos{t}\left(e^{\cos{t}}-2\cos 4t-\sin^5\left(\dfrac{t}{12}\right)\right) 
+$$
+</Grid>
+
+Initializing `x` and `y` alerts the module that the plot is parametric, so the module will fail if `f`, `x`, and `y` are initialized in the same object. If a Cartesian plot must be rendered as well, provide the Cartesian plot in a separate object:
+
+<Grid cols={1}>
+```jsx
+<Plot data={[
+	{
+		x:(t) => Math.sin(t)*(Math.E**Math.cos(t)-2*Math.cos(4*t)-Math.sin(t/12)**5),
+		y:(t) => Math.cos(t)*(Math.E**Math.cos(t)-2*Math.cos(4*t)-Math.sin(t/12)**5)
+	},
+	{f:(x) => Math.cos(x)}
+]}/>
+```
+<Plot data={[
+	{
+		x:(t)=>Math.sin(t)*(Math.E**Math.cos(t)-2*Math.cos(4*t)-Math.sin(t/12)**5),
+		y:(t)=>Math.cos(t)*(Math.E**Math.cos(t)-2*Math.cos(4*t)-Math.sin(t/12)**5)
+	},
+	{f: (x)=>Math.cos(x)}
+]}
+scale={60}
+/>
+
+$$
+x(t)=\sin{t}\left(e^{\cos{t}}-2\cos 4t-\sin^5\left(\dfrac{t}{12}\right)\right)
+\\[1em]
+y(t)=\cos{t}\left(e^{\cos{t}}-2\cos 4t-\sin^5\left(\dfrac{t}{12}\right)\right) 
+\\[1em]
+f(x) = \cos(x)
+$$
+</Grid>
+
+## Polar Plots
+
+Functions can be plotted with polar coordinates using the `Polar` module:
+
+<Grid cols={2}>
+
+```jsx
+<Polar data={[{f:(t) => Math.sin(2*t)*Math.cos(2*t)}]}/>
+```
+<Polar data={[{ f: (t) => Math.sin(2 * t) * Math.cos(2 * t) }]} />
+
+</Grid>
+
+## Multivariable Plots
+
+To plot functions in ${\reals^3,}$ use the `Plot3D` module.
+
+<Grid cols={1}>
+
+```jsx
+<Plot3D z={(x, y) => Math.sin(Math.sqrt(x ** 2 + y ** 2))} />
+```
+
+<Plot3D z={(x, y) => Math.sin(Math.sqrt(x ** 2 + y ** 2))} />
+
+$$
+	z(x,y) = \sin \left( \sqrt{x^2 + y^2} \right)
+$$
+
+</Grid>
+
+## Arrays
+
+Arrays can be rendered with the `Arr` module.
+
+<Grid cols={2}>
+```jsx
+<Arr data={[3,7,9,1,8]}/>
+```
+<Arr data={[3,7,9,1,8]}/>
+</Grid>
+
+Pointers to a particular element can be rendered by initializing the `pointers` object. This is an object of the form ${\set{i:b},}$ where ${i}$ is an index
+and ${b}$ is the pointer variable.
+
+<Grid cols={2}>
+```jsx
+<Arr
+	data={[3,7,9,1,8,2,11]}
+	pointers={{0: 'i', 5: 'j'}}
+/>
+```
+<Arr data={[3,7,9,1,8,2,11]} pointers={{0: 'i', 5: 'j'}}/>
+</Grid>
+
+## Lists
+
+The `List` module renders linked-lists.
+
+<Grid cols={2}>
+```jsx
+<List data={[2,9,8,4,1,7]}/>
+```
+<List data={[2,9,8,4,1,7]}/>
+</Grid>
+
+Like the array field, pointers can be added by passing a pointer object, alongside a string:
+
+<Grid cols={2}>
+```jsx
+<List
+	data={[2,9,8,4,1,7]}
+	pointers={{4:'p',5:'t'}}
+/>
+```
+<List data={[2,9,8,4,1,7]} pointers={{4:'p',5:'t'}}/>
+</Grid>
+
+## Circular Queues 
+
+Circular queues, or circular buffers, can be rendered with the `CircularQueue` module.
+
+<Grid cols={2}>
+```jsx
+<CircularQueue
+	data={['b','a','d','e','f','n']}
+/>
+```
+<CircularQueue
+	data={['b', 'a', 'd', 'e', 'f', 'n']}
+	width={270}
+	height={270}
+/>
+</Grid>
+
+## Lattice
+
+Lattices can be rendered with the `Lattice` module.
+
+<Grid cols={2}>
+```jsx
+<Lattice 
+	data={[
+		[0,0],[1,0],[1,1],[1,2],
+		[1,3],[1,4],[2,4],[2,5],
+		[3,5],[3,6],[4,6],[4,7],
+		[5,7],[6,7],[7,7],[7,8],
+		[8,8],[8,9],[9,9]
+	]}
+/>
+```
+<Lattice 
+	data={[
+		[0,0],[1,0],[1,1],[1,2],
+		[1,3],[1,4],[2,4],[2,5],
+		[3,5],[3,6],[4,6],[4,7],
+		[5,7],[6,7],[7,7],[7,8],
+		[8,8],[8,9],[9,9]
+	]}
+/>
+</Grid>
+
+## Trees
+
+Hago can render various trees.
+
+<Grid cols={2}>
+```jsx
+<Tree data={[
+	[20,''], [15,20],
+	[18,20], [25,20],
+	[21,25], [26,25],
+	[24,25], [14,15],
+	[19,15], [16,15],
+	[11,14], [10,14],
+	[13,14]]}
+id="Tree1"
+/>
+```
+<Tree
+  data={[
+    [20,''],
+    [15,20],
+    [18,20],
+    [25,20],
+    [21,25],
+    [26,25],
+    [24,25],
+    [14,15],
+    [19,15],
+    [16,15],
+    [11,14],
+    [10,14],
+    [13,14],
+  ]}
+  id="Tree1"
+	height={180}
+/>
+</Grid>
+
+The `Tree` component will render a basic tree. Let ${c,}$ ${p,}$ and ${r}$ be substantive data. The data field takes an array of tuples of the form ${[c,p],}$ where ${c}$ is a child node, and ${p}$ is its parent. The first node must be of the form ${[r,s],}$ where ${s}$ is the empty string `''`. This form is used to indicate that the node ${[r,s]}$ is the tree's root.
+
+Because binary trees are the most common tree type, the preceding syntax
+can be forgone to render binary trees:
+
+<Grid cols={2}>
+```jsx
+<Tree
+  data={[
+    [0, [2, 3]],
+    [2, [17, 19]],
+    [3, [36, 7]],
+    [17, [25, null]],
+  ]}
+/>
+```
+<Tree
+  data={[
+    [0, [2, 3]],
+    [2, [17, 19]],
+    [3, [36, 7]],
+    [17, [25, null]],
+  ]}
+	height={130}
+/>
+</Grid>
+
+In this case, the node syntax is ${[p,[c_1,c_2]],}$ where ${p}$ is a parent node, ${c_1}$ is the left-child of ${p,}$ and ${c_2}$ is the right-child of ${p.}$ To mark either a left- or right-child absent, set their values to `null`.
+
+### AVL Trees
+
+AVL trees are rendered separately from trees.
+
+<Grid cols={1}>
+```jsx
+<AVLTree
+  data={[
+    { c: 'A', p: '' },
+    { c: 'B', p: 'A' },
+    { c: 'C', p: 'A' },
+    { c: 'E', p: 'B' },
+    { c: 'N', p: 'B' },
+    { c: 'F', p: 'C' },
+    { c: 'J', p: 'C' },
+    { c: 'N', p: 'J' },
+  ]}
+/>
+```
+<AVLTree
+  data={[
+    { c: 'A', p: '' },
+    { c: 'B', p: 'A' },
+    { c: 'C', p: 'A' },
+    { c: 'E', p: 'B' },
+    { c: 'N', p: 'B' },
+    { c: 'F', p: 'C' },
+    { c: 'J', p: 'C' },
+    { c: 'N', p: 'J' },
+  ]}
+/>
+</Grid>
+
+Numbers atop the nodes correspond to height-balance factors, and numbers beneath to heights.
+
+## Graphs
+
+To render graphs, use the `Graph` module.
+
+<Graph data={[
+	[1, 2],
+	[2, 4],
+	[5, 6],
+	[7, 6],
+	[6, 8],
+	[8, 9],
+	[11, 2],
+	[0, 9],
+	[12, 2]]}
+height={210}
+/>
+```jsx
+<Graph data={[
+	[1, 2],[2, 4],[5, 6],
+	[7, 6],[6, 8],[8, 9],
+	[11, 2],[0, 9],[12, 2]
+]}/>
+```
